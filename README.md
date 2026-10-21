@@ -11,7 +11,9 @@ Gerenciador de downloads de vídeos de diferentes sites, com interface em portug
 - Extração de áudio para MP3.
 - Escolha da pasta de destino.
 - Fila persistente com downloads sequenciais.
+- Recuperação da última cópia válida da fila e retomada de itens interrompidos em estado pausado.
 - Pausa e tentativa de retomada, quando suportadas pelo servidor.
+- Progresso percentual e diagnóstico de erro por item.
 - Limpar os itens concluídos sem apagar os arquivos.
 - Abrir a pasta do download selecionado.
 
@@ -49,6 +51,8 @@ O resultado fica em `dist/VideoLivre/VideoLivre.exe`. Mantenha a pasta inteira, 
 
 A fila fica em `%LOCALAPPDATA%\VideoLivre\queue.json`. Ao reabrir o aplicativo, downloads pendentes ficam pausados. Arquivos parciais são mantidos para permitir retomada.
 
+O VideoLivre conserva uma cópia da fila anterior em `%LOCALAPPDATA%\VideoLivre\queue.backup.json`. Se o arquivo principal estiver inválido, ele tenta recuperar a fila anterior e preserva uma cópia do arquivo danificado. Se um item falhar, selecione-o para usar **Ver erro** ou **Copiar diagnóstico**; revise o texto antes de compartilhá-lo.
+
 ## Limitações e verificações
 
 - A compatibilidade depende do yt-dlp e pode mudar quando um site muda.
@@ -69,3 +73,4 @@ A fila fica em `%LOCALAPPDATA%\VideoLivre\queue.json`. Ao reabrir o aplicativo, 
 | `COMPONENTES.txt` | Componentes e referências de licenciamento |
 
 Este projeto é independente do Internet Download Manager e não utiliza seu código ou sua marca. Os componentes de terceiros mantêm suas próprias licenças. Este repositório não define uma licença de redistribuição para o código da interface.
+
