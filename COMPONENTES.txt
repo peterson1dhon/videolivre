@@ -1,0 +1,11 @@
+VideoLivre utiliza componentes de código aberto:
+
+yt-dlp — Unlicense — https://github.com/yt-dlp/yt-dlp
+yt-dlp-ejs — https://github.com/yt-dlp/ejs
+Python e Tcl/Tk — https://www.python.org/ e https://www.tcl.tk/
+PyInstaller bootloader — https://pyinstaller.org/
+FFmpeg 7.1 distribuído pelo imageio-ffmpeg 0.6.0 — https://github.com/imageio/imageio-ffmpeg
+O binário FFmpeg informa sua configuração e licença com: ffmpeg.exe -L
+Código-fonte do FFmpeg: https://ffmpeg.org/releases/ffmpeg-7.1.tar.xz
+
+Este pacote foi montado para uso local neste computador. As licenças de cada componente continuam aplicáveis.
