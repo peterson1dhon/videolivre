@@ -115,14 +115,15 @@ class App(tk.Tk):
             if not isinstance(raw_jobs, list):
                 raise ValueError('Lista de downloads inválida')
             seen = set()
+            warning = None
             for raw in raw_jobs:
                 job = normalize_job(raw)
                 if job and job['id'] not in seen:
                     seen.add(job['id'])
                     self.jobs.append(job)
-                elif raw_jobs:
-                    return 'Alguns itens inválidos da fila foram ignorados.'
-            return None
+                else:
+                    warning = 'Alguns itens inválidos ou repetidos da fila foram ignorados.'
+            return warning
         try:
             queue_file = STATE / 'queue.json'
             data = json.loads(queue_file.read_text(encoding='utf-8'))
