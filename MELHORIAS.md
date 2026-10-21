@@ -1,6 +1,6 @@
 # Plano de melhorias do VideoLivre
 
-Este documento é uma proposta de trabalho para outro GPT ou desenvolvedor. As tarefas abaixo **ainda não foram implementadas por este plano**. Marque uma tarefa somente depois de implementá-la e verificar seus critérios de conclusão.
+Este documento acompanha o trabalho do VideoLivre e orienta outro GPT ou desenvolvedor. O marcador **[x]** indica implementação e verificações descritas no registro; **[~]** indica implementação parcial. Os itens **[ ]** continuam pendentes.
 
 Repositório: https://github.com/peterson1dhon/videolivre
 
@@ -28,7 +28,7 @@ Faça uma tarefa por vez e registre o resultado antes de começar a próxima. As
 
 ## Etapa 1 — Confiabilidade
 
-### [ ] 01. Proteger e recuperar o histórico
+### [x] 01. Proteger e recuperar o histórico
 
 **Para quê:** evitar que um arquivo de fila danificado impeça a abertura ou faça o histórico desaparecer silenciosamente.
 
@@ -43,7 +43,7 @@ Faça uma tarefa por vez e registre o resultado antes de começar a próxima. As
 
 **Pronto quando:** fila antiga, arquivo vazio, JSON inválido, item incompleto e falha de gravação recebem tratamento previsível; a janela abre; a recuperação não apaga arquivos baixados. Itens interrompidos voltam pausados.
 
-### [ ] 02. Conferir dependências e pasta de destino
+### [~] 02. Conferir dependências e pasta de destino
 
 **Para quê:** mostrar o que falta antes de começar um download que não poderá terminar.
 
@@ -55,7 +55,9 @@ Faça uma tarefa por vez e registre o resultado antes de começar a próxima. As
 
 **Pronto quando:** ausência de FFmpeg, pasta removida e pasta sem permissão geram mensagens compreensíveis; uma pasta válida permite continuar. Nenhum componente é instalado silenciosamente.
 
-### [ ] 03. Mostrar erros úteis por download
+**Já implementado:** verifica yt-dlp na execução pelo código-fonte, detecta FFmpeg ausente antes de enfileirar e confere se a pasta aceita gravação. **Pendente:** informar versões, detectar Node.js na interface e mostrar espaço livre.
+
+### [~] 03. Mostrar erros úteis por download
 
 **Para quê:** permitir que o usuário entenda por que um item falhou e como agir.
 
@@ -70,7 +72,9 @@ Faça uma tarefa por vez e registre o resultado antes de começar a próxima. As
 
 **Pronto quando:** a mensagem permanece ligada ao item correto; tentar novamente preserva o histórico útil; o diagnóstico não inclui cookies ou credenciais.
 
-### [ ] 04. Tornar pausa e fechamento mais previsíveis
+**Já implementado:** erros ficam associados ao item, há classificação básica, detalhes e cópia de diagnóstico com parâmetros de URL removidos. **Pendente:** incluir versões dos componentes no diagnóstico e aprimorar a classificação para mensagens de cada site.
+
+### [~] 04. Tornar pausa e fechamento mais previsíveis
 
 **Para quê:** evitar travamentos da janela e estados incorretos quando um download é interrompido.
 
@@ -85,9 +89,11 @@ Faça uma tarefa por vez e registre o resultado antes de começar a próxima. As
 
 **Pronto quando:** pausar logo após iniciar, pausar durante combinação, fechar durante download e reabrir não deixam processos órfãos nem itens falsamente concluídos. Arquivos parciais úteis são preservados.
 
+**Já implementado:** o encerramento e o fallback com `taskkill` rodam em thread separada para não travar a janela; a fila salva itens pausados ao sair. **Pendente:** verificar em execução real que subprocessos do FFmpeg também são encerrados em todos os pontos da conversão.
+
 ## Etapa 2 — Uso diário
 
-### [ ] 05. Progresso, velocidade e tempo restante
+### [~] 05. Progresso, velocidade e tempo restante
 
 **Para quê:** mostrar o que o programa está fazendo sem exigir leitura do painel técnico.
 
@@ -98,6 +104,8 @@ Faça uma tarefa por vez e registre o resultado antes de começar a próxima. As
 - Mostrar progresso indeterminado quando o total não for conhecido; não apresentar 100% como conclusão antes do pós-processamento.
 
 **Pronto quando:** um download com áudio e vídeo separados mostra suas etapas corretamente, valores desconhecidos não são inventados e o MP3 só aparece concluído depois da conversão.
+
+**Já implementado:** percentagem por item e etapa de finalização. **Pendente:** barra, velocidade, bytes, tempo restante e progresso indeterminado.
 
 ### [ ] 06. Consultar informações antes de baixar
 
@@ -228,4 +236,10 @@ Para cada tarefa concluída, acrescente:
 - Verificações realizadas e resultado.
 - Limitações e pendências.
 
-Nenhuma tarefa de implementação foi concluída pela criação deste documento.
+## Registro desta rodada
+
+- **Tarefa 01 — Proteger e recuperar o histórico.** `app.py` agora migra a fila antiga para formato versão 2, valida os itens, volta trabalhos interrompidos para pausado, cria cópia de segurança e tenta restaurar essa cópia se o JSON principal estiver danificado. Arquivos parciais continuam no disco. Verificações: compilação Python, validação de migração e rejeição de URL inválida; simulação da recuperação com Tkinter ainda pendente.
+- **Tarefas 02 a 05 — implementação parcial.** Checagem de pasta e dependências, mensagens de erro por item, encerramento em thread e percentual de progresso básico. Verificações: compilação Python, testes rápidos de migração, sanitização e classificação de erros. Interface e processos de vídeo real ainda precisam de validação manual.
+- **Commit da rodada:** será preenchido ao publicar as alterações.
+
+
