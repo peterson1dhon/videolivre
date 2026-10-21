@@ -240,6 +240,6 @@ Para cada tarefa concluída, acrescente:
 
 - **Tarefa 01 — Proteger e recuperar o histórico.** `app.py` agora migra a fila antiga para formato versão 2, valida os itens, volta trabalhos interrompidos para pausado, cria cópia de segurança e tenta restaurar essa cópia se o JSON principal estiver danificado. Arquivos parciais continuam no disco. Verificações: compilação Python, validação de migração e rejeição de URL inválida; simulação da recuperação com Tkinter ainda pendente.
 - **Tarefas 02 a 05 — implementação parcial.** Checagem de pasta e dependências, mensagens de erro por item, encerramento em thread e percentual de progresso básico. Verificações: compilação Python, testes rápidos de migração, sanitização e classificação de erros. Interface e processos de vídeo real ainda precisam de validação manual.
-- **Commit do código desta rodada:** `e199e4112acb70673c3da79aa43ec2099d5fb2d6`. README e plano foram atualizados nos commits seguintes.
+- **Commit mais recente do código desta rodada:** `888ef8d78f5c92dd9d1b16a276a4c768ba39d6a9`. README e plano também foram atualizados no GitHub.
 
 
