@@ -202,6 +202,18 @@ Faça uma tarefa por vez e registre o resultado antes de começar a próxima. As
 
 **Pronto quando:** os caminhos pelo Python e pelo aplicativo empacotado continuam documentados e verificados; alterações de dependências têm versões registradas e resultado de validação.
 
+## Melhorias solicitadas depois do plano
+
+### Corrigir acentos em títulos e nomes de arquivo
+
+**Implementado nesta rodada:** força UTF-8 no processo do yt-dlp e na saída que o VideoLivre lê. Verificar com títulos reais que contenham ç, ã, é e outros caracteres acentuados; nenhum download real foi repetido nesta rodada.
+
+### Incluir o @ do canal/criador no arquivo
+
+**Implementado nesta rodada:** captura `channel_url`, `uploader_url` e `uploader_id` do yt-dlp. Quando a URL de perfil identifica um @ de forma clara, acrescenta `[@nome]` ao nome do arquivo final, sem sobrescrever arquivo existente. A extração depende dos metadados que cada site disponibiliza.
+
+**Verificação realizada:** URLs com @ e perfis comuns são reconhecidos; ids genéricos não são tratados como @. A confirmação com o canal Bruno & Barretto ainda depende de testar o link real no aplicativo.
+
 ## Futuro opcional
 
 ### [ ] 13. Playlists com seleção de itens
@@ -240,6 +252,7 @@ Para cada tarefa concluída, acrescente:
 
 - **Tarefa 01 — Proteger e recuperar o histórico.** `app.py` agora migra a fila antiga para formato versão 2, valida os itens, volta trabalhos interrompidos para pausado, cria cópia de segurança e tenta restaurar essa cópia se o JSON principal estiver danificado. Arquivos parciais continuam no disco. Verificações: compilação Python, validação de migração e rejeição de URL inválida; simulação da recuperação com Tkinter ainda pendente.
 - **Tarefas 02 a 05 — implementação parcial.** Checagem de pasta e dependências, mensagens de erro por item, encerramento em thread e percentual de progresso básico. Verificações: compilação Python, testes rápidos de migração, sanitização e classificação de erros. Interface e processos de vídeo real ainda precisam de validação manual.
-- **Commit mais recente do código desta rodada:** `888ef8d78f5c92dd9d1b16a276a4c768ba39d6a9`. README e plano também foram atualizados no GitHub.
+- **Acentos e créditos do criador:** UTF-8 forçado na saída e @ reconhecido pelos metadados de perfil foi acrescentado ao nome final do arquivo. Teste real em sites ainda pendente.
+- **Commit mais recente do código desta rodada:** `296c4b815d283388ce2bc45e5b3140c7d37a3ebc`. README e plano foram atualizados nos commits seguintes.
 
 
