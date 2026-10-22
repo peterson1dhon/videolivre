@@ -204,6 +204,10 @@ Faça uma tarefa por vez e registre o resultado antes de começar a próxima. As
 
 ## Melhorias solicitadas depois do plano
 
+### Créditos manuais antes do download — versão 1.1.1
+
+Campo opcional **Créditos / @ do criador** antes de adicionar à fila. O texto manual tem prioridade sobre o perfil automático, aceita nomes com espaços e acentos e fica salvo no item para retomadas. O campo é limpo após adicionar um vídeo. Ao concluir, o arquivo recebe `[crédito]`; colisões recebem um número, sem sobrescrever outro vídeo. Verificados com arquivos temporários: prioridade manual, persistência, acentos e preservação de arquivo existente.
+
 ### Corrigir acentos em títulos e nomes de arquivo
 
 **Implementado nesta rodada:** força UTF-8 no processo do yt-dlp e na saída que o VideoLivre lê. Verificar com títulos reais que contenham ç, ã, é e outros caracteres acentuados; nenhum download real foi repetido nesta rodada.
