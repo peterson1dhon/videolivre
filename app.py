@@ -407,7 +407,7 @@ class App(tk.Tk):
     def add_creator_to_filename(self, job):
         handle = clean_credit(job.get('manual_credit') or job.get('creator_handle') or '')
         file = Path(job.get('file', '')) if job.get('file') else None
-        if not handle or not file or not file.is_file() or handle in file.stem:
+        if not handle or not file or not file.is_file() or f'[{handle}]' in file.stem:
             return
         safe_handle = handle
         if not safe_handle:
