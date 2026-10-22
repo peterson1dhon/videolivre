@@ -18,7 +18,7 @@ import subprocess
 import threading
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, unquote
 import uuid
 import shutil
 
@@ -62,6 +62,8 @@ def normalize_job(raw):
     for key in ('name', 'file', 'error_summary', 'error_details'):
         if isinstance(raw.get(key), str):
             job[key] = raw[key][:4000]
+    if isinstance(raw.get('creator_handle'), str):
+        job['creator_handle'] = raw['creator_handle'][:80]
     return job
 
 
@@ -76,7 +78,11 @@ def command(job):
     args = ['--ignore-config', '--no-playlist', '--newline', '--progress', '--no-colors', '--windows-filenames',
             '--continue', '--no-overwrites', '--socket-timeout', '20', '--retries', '3',
             '--ffmpeg-location', str(BASE / 'ffmpeg.exe'), '-P', job['folder'],
-            '-o', '%(title).150B [%(id)s].%(ext)s', '--print', 'after_move:FILE:%(filepath)s']
+            '-o', '%(title).150B [%(id)s].%(ext)s', '--encoding', 'utf-8',
+            '--print', 'after_move:FILE:%(filepath)s',
+            '--print', 'after_move:CHANNEL_URL:%(channel_url)s',
+            '--print', 'after_move:UPLOADER_URL:%(uploader_url)s',
+            '--print', 'after_move:UPLOADER_ID:%(uploader_id)s']
     quality = job['quality']
     node = shutil.which('node')
     if node:
@@ -358,6 +364,50 @@ class App(tk.Tk):
         except OSError as e:
             messagebox.showerror('Não foi possível abrir a pasta', str(e))
 
+    @staticmethod
+    def creator_handle(url, uploader_id):
+        try:
+            parsed = urlsplit(url)
+            path = unquote(parsed.path)
+        except ValueError:
+            path = ''
+            parsed = None
+        match = re.search(r'(?:^|/)@([A-Za-z0-9._-]{2,60})(?:/|$)', path)
+        if match:
+            return '@' + match.group(1)
+        if parsed and parsed.hostname:
+            host = parsed.hostname.lower().removeprefix('www.')
+            supported_profiles = ('instagram.com', 'tiktok.com', 'x.com', 'twitter.com', 'twitch.tv', 'facebook.com')
+            if any(host == domain or host.endswith('.' + domain) for domain in supported_profiles):
+                parts = [part for part in path.split('/') if part]
+                if parts and parts[0].lower() not in ('p', 'reel', 'reels', 'video', 'videos', 'watch', 'user', 'channel', 'c', 'profile.php'):
+                    if re.fullmatch(r'[A-Za-z0-9._-]{2,60}', parts[0]):
+                        return '@' + parts[0].lstrip('@')
+        if isinstance(uploader_id, str) and re.fullmatch(r'@[A-Za-z0-9._-]{2,60}', uploader_id):
+            return uploader_id
+        return None
+
+    def add_creator_to_filename(self, job):
+        handle = job.get('creator_handle')
+        file = Path(job.get('file', '')) if job.get('file') else None
+        if not handle or not file or not file.is_file() or handle in file.stem:
+            return
+        safe_handle = re.sub(r'[^A-Za-z0-9._-]', '', handle.lstrip('@'))[:60]
+        if not safe_handle:
+            return
+        stem = f'{file.stem} [@{safe_handle}]'
+        target = file.with_name(stem + file.suffix)
+        index = 2
+        while target.exists():
+            target = file.with_name(f'{stem} ({index}){file.suffix}')
+            index += 1
+        try:
+            file.rename(target)
+            job['file'] = str(target)
+            job['name'] = target.name
+        except OSError as exc:
+            job['error_details'] = f"Download concluído, mas não foi possível incluir o crédito no nome do arquivo: {exc}"
+
     def show_error(self):
         job = self.selected()
         if not job:
@@ -400,7 +450,7 @@ class App(tk.Tk):
     def worker(self, job):
         code = 1
         try:
-            env = dict(os.environ, PYTHONIOENCODING='utf-8')
+            env = dict(os.environ, PYTHONIOENCODING='utf-8', PYTHONUTF8='1')
             self.proc = subprocess.Popen(command(job), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                          text=True, encoding='utf-8', errors='replace', env=env,
                                          creationflags=subprocess.CREATE_NO_WINDOW)
@@ -434,6 +484,12 @@ class App(tk.Tk):
                     if value.startswith('FILE:'):
                         job['file'] = value[5:]
                         job['name'] = Path(value[5:]).name
+                    elif value.startswith('CHANNEL_URL:'):
+                        job['creator_handle'] = self.creator_handle(value[len('CHANNEL_URL:'):], None) or job.get('creator_handle')
+                    elif value.startswith('UPLOADER_URL:'):
+                        job['creator_handle'] = self.creator_handle(value[len('UPLOADER_URL:'):], None) or job.get('creator_handle')
+                    elif value.startswith('UPLOADER_ID:'):
+                        job['creator_handle'] = self.creator_handle('', value[len('UPLOADER_ID:'):]) or job.get('creator_handle')
                     if value.startswith('[Merger]') or value.startswith('[ExtractAudio]'):
                         job['status'] = 'finalizing'
                         job['progress'] = None
@@ -445,6 +501,8 @@ class App(tk.Tk):
                     job['error_summary'] = self.classify_error(value)
                 else:
                     job['status'] = 'paused' if iid in self.stopped else ('completed' if value == 0 else 'error')
+                    if value == 0:
+                        self.add_creator_to_filename(job)
                     if value and not job.get('error_summary'):
                         job['error_summary'] = 'Erro não identificado. Confira os detalhes.'
                         job.setdefault('error_details', f'yt-dlp encerrou com código {value}.')
