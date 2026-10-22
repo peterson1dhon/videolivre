@@ -23,7 +23,7 @@ import uuid
 import shutil
 
 STATE = Path(os.environ.get('LOCALAPPDATA', str(Path.home()))) / 'VideoLivre'
-APP_VERSION = '1.1.1'
+APP_VERSION = '1.1.2'
 QUALITIES = ['Melhor disponível', 'Até 1080p', 'Até 720p', 'Até 480p', 'Somente áudio (MP3)']
 STATUS_LABELS = {
     'queued': 'Na fila', 'paused': 'Pausado', 'downloading': 'Baixando',
@@ -65,12 +65,17 @@ def normalize_job(raw):
     if isinstance(raw.get('creator_handle'), str):
         job['creator_handle'] = raw['creator_handle'][:80]
     if isinstance(raw.get('manual_credit'), str):
-        job['manual_credit'] = clean_credit(raw['manual_credit'])
+        job['manual_credit'] = format_credit(raw['manual_credit'])
     return job
 
 
 def clean_credit(text):
     return re.sub(r'[<>:"/\\|?*\x00-\x1f]', '', text).strip().strip('. ')[:80].rstrip('. ')
+
+
+def format_credit(text):
+    name = clean_credit(text).lstrip('@').strip()
+    return '@' + name if name else ''
 
 
 def safe_error(text):
@@ -303,7 +308,7 @@ class App(tk.Tk):
         if not getattr(sys, 'frozen', False) and importlib.util.find_spec('yt_dlp') is None:
             messagebox.showerror('yt-dlp não encontrado', 'Instale as dependências com: python -m pip install -r requirements.txt')
             return
-        credit = clean_credit(self.credit.get())
+        credit = format_credit(self.credit.get())
         if self.credit.get().strip() and not credit:
             messagebox.showinfo('Confira os créditos', 'Digite um nome ou @ válido para o arquivo.')
             return
@@ -405,14 +410,14 @@ class App(tk.Tk):
         return None
 
     def add_creator_to_filename(self, job):
-        handle = clean_credit(job.get('manual_credit') or job.get('creator_handle') or '')
+        handle = format_credit(job.get('manual_credit') or job.get('creator_handle') or '')
         file = Path(job.get('file', '')) if job.get('file') else None
-        if not handle or not file or not file.is_file() or f'[{handle}]' in file.stem:
+        if not file or not file.is_file():
             return
-        safe_handle = handle
-        if not safe_handle:
+        base = re.sub(r'\s\[[^\[\]]+\]$', '', file.stem)
+        if base == file.stem:
             return
-        stem = f'{file.stem} [{safe_handle}]'
+        stem = base + (f' [{handle}]' if handle else '')
         target = file.with_name(stem + file.suffix)
         index = 2
         while target.exists():
