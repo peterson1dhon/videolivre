@@ -14,6 +14,7 @@ Gerenciador de downloads de vídeos de diferentes sites, com interface em portug
 - Recuperação da última cópia válida da fila e retomada de itens interrompidos em estado pausado.
 - Pausa e tentativa de retomada, quando suportadas pelo servidor.
 - Progresso percentual e diagnóstico de erro por item.
+- Quando o site fornece o perfil do criador, inclui o @ no nome do arquivo para facilitar os créditos.
 - Limpar os itens concluídos sem apagar os arquivos.
 - Abrir a pasta do download selecionado.
 
