@@ -204,6 +204,10 @@ Faça uma tarefa por vez e registre o resultado antes de começar a próxima. As
 
 ## Melhorias solicitadas depois do plano
 
+### Nome final sem ID e crédito com @ — versão 1.1.2
+
+Após concluir o download, o programa remove o sufixo de ID usado internamente e acrescenta o crédito como `[@nome]`. Se o usuário digitar o nome sem @, o prefixo é acrescentado. Mesmo sem crédito disponível, o nome final não conserva o ID. Se já existir outro arquivo com o mesmo título, o novo recebe `(2)`, `(3)` etc. Um arquivo já baixado foi renomeado e o registro da fila foi atualizado. O arquivo da fila anterior foi guardado como `queue.before-1.1.2.json`.
+
 ### Créditos manuais antes do download — versão 1.1.1
 
 Campo opcional **Créditos / @ do criador** antes de adicionar à fila. O texto manual tem prioridade sobre o perfil automático, aceita nomes com espaços e acentos e fica salvo no item para retomadas. O campo é limpo após adicionar um vídeo. Ao concluir, o arquivo recebe `[crédito]`; colisões recebem um número, sem sobrescrever outro vídeo. Verificados com arquivos temporários: prioridade manual, persistência, acentos e preservação de arquivo existente.
