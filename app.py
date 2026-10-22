@@ -23,7 +23,7 @@ import uuid
 import shutil
 
 STATE = Path(os.environ.get('LOCALAPPDATA', str(Path.home()))) / 'VideoLivre'
-APP_VERSION = '1.1.0'
+APP_VERSION = '1.1.1'
 QUALITIES = ['Melhor disponível', 'Até 1080p', 'Até 720p', 'Até 480p', 'Somente áudio (MP3)']
 STATUS_LABELS = {
     'queued': 'Na fila', 'paused': 'Pausado', 'downloading': 'Baixando',
@@ -64,7 +64,13 @@ def normalize_job(raw):
             job[key] = raw[key][:4000]
     if isinstance(raw.get('creator_handle'), str):
         job['creator_handle'] = raw['creator_handle'][:80]
+    if isinstance(raw.get('manual_credit'), str):
+        job['manual_credit'] = clean_credit(raw['manual_credit'])
     return job
+
+
+def clean_credit(text):
+    return re.sub(r'[<>:"/\\|?*\x00-\x1f]', '', text).strip().strip('. ')[:80].rstrip('. ')
 
 
 def safe_error(text):
@@ -179,6 +185,12 @@ class App(tk.Tk):
         self.quality.set(QUALITIES[0])
         self.quality.pack(side='left', ipady=5)
         ttk.Button(options, text='Adicionar à fila', style='Primary.TButton', command=self.add).pack(side='right')
+        credits = ttk.Frame(main)
+        credits.pack(fill='x', pady=(10, 0))
+        ttk.Label(credits, text='Créditos / @ do criador:').pack(side='left')
+        self.credit = tk.StringVar()
+        ttk.Entry(credits, textvariable=self.credit).pack(side='left', fill='x', expand=True, padx=(8, 0))
+        ttk.Label(main, text='Opcional: digite @usuario ou o nome. Em branco, tenta identificar automaticamente.', wraplength=700).pack(anchor='w', pady=(4, 0))
         destination = ttk.Frame(main)
         destination.pack(fill='x', pady=(12, 20))
         ttk.Label(destination, text='Salvar em:').pack(side='left')
@@ -291,8 +303,13 @@ class App(tk.Tk):
         if not getattr(sys, 'frozen', False) and importlib.util.find_spec('yt_dlp') is None:
             messagebox.showerror('yt-dlp não encontrado', 'Instale as dependências com: python -m pip install -r requirements.txt')
             return
-        self.jobs.append(dict(id=uuid.uuid4().hex, url=url, folder=self.folder.get(), quality=self.quality.get(), status='queued', progress=None))
+        credit = clean_credit(self.credit.get())
+        if self.credit.get().strip() and not credit:
+            messagebox.showinfo('Confira os créditos', 'Digite um nome ou @ válido para o arquivo.')
+            return
+        self.jobs.append(dict(id=uuid.uuid4().hex, url=url, folder=self.folder.get(), quality=self.quality.get(), status='queued', progress=None, manual_credit=credit))
         self.url.delete(0, 'end')
+        self.credit.set('')
         self.save()
         self.refresh()
 
@@ -388,14 +405,14 @@ class App(tk.Tk):
         return None
 
     def add_creator_to_filename(self, job):
-        handle = job.get('creator_handle')
+        handle = clean_credit(job.get('manual_credit') or job.get('creator_handle') or '')
         file = Path(job.get('file', '')) if job.get('file') else None
         if not handle or not file or not file.is_file() or handle in file.stem:
             return
-        safe_handle = re.sub(r'[^A-Za-z0-9._-]', '', handle.lstrip('@'))[:60]
+        safe_handle = handle
         if not safe_handle:
             return
-        stem = f'{file.stem} [@{safe_handle}]'
+        stem = f'{file.stem} [{safe_handle}]'
         target = file.with_name(stem + file.suffix)
         index = 2
         while target.exists():
