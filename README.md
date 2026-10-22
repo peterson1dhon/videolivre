@@ -15,7 +15,7 @@ Gerenciador de downloads de vídeos de diferentes sites, com interface em portug
 - Pausa e tentativa de retomada, quando suportadas pelo servidor.
 - Progresso percentual e diagnóstico de erro por item.
 - Quando o site fornece o perfil do criador, inclui o @ no nome do arquivo para facilitar os créditos.
-- Campo **Créditos / @ do criador**: preencha antes de adicionar à fila. Aceita @ ou nome com espaços e acentos; o texto manual tem prioridade sobre a identificação automática. O campo é limpo após adicionar cada vídeo para evitar atribuir o próximo ao mesmo criador por engano.
+- Campo **Créditos / @ do criador**: preencha antes de adicionar à fila. Aceita @ ou nome com espaços e acentos; se faltar @, o programa adiciona. O texto manual tem prioridade sobre a identificação automática. O nome final fica como `Título [@criador].mp4`, sem o ID numérico do site. O campo é limpo após adicionar cada vídeo para evitar atribuir o próximo ao mesmo criador por engano.
 - Limpar os itens concluídos sem apagar os arquivos.
 - Abrir a pasta do download selecionado.
 
