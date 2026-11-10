@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <!-- A estação de downloads do desktop em uma coluna adaptável. Verde-petróleo
+       marca ações, e a lista deixa visível o caminho do link ao arquivo. -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f5f7">
+  <title>VideoLivre Web</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/app.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="shell top-content">
+      <a href="/" class="brand"><img src="/icon.svg" alt="" width="36" height="36">VideoLivre <span>Web</span></a>
+      <div class="top-actions"><span id="version" class="version"></span><button id="logout" class="quiet" hidden>Sair</button></div>
+    </div>
+  </header>
+  <main class="shell">
+    <noscript>Ative o JavaScript para usar a fila de downloads.</noscript>
+    <p id="feedback" role="status"></p>
+    <section id="login" class="panel login-panel" hidden aria-labelledby="login-title">
+      <h1 id="login-title">Entre no VideoLivre</h1>
+      <p class="muted">Use a chave que está no arquivo <code>chave.txt</code> do PC que roda o serviço.</p>
+      <form id="login-form">
+        <label for="key">Chave de acesso</label>
+        <input id="key" type="password" required maxlength="64" autocomplete="current-password" spellcheck="false">
+        <button class="primary" type="submit">Entrar</button>
+      </form>
+    </section>
+    <div id="workspace" hidden>
+      <section class="panel composer" aria-labelledby="composer-title">
+        <h1 id="composer-title">Novo download</h1>
+        <p class="muted">Cole um link público para adicionar o vídeo à fila do seu PC.</p>
+        <form id="add-form">
+          <label for="url">Link do vídeo</label>
+          <div class="input-row">
+            <input id="url" name="url" type="url" inputmode="url" maxlength="4096" placeholder="https://…" required autocomplete="off" spellcheck="false">
+            <button type="button" id="paste">Colar link</button>
+          </div>
+          <div class="options">
+            <div>
+              <label for="quality">Qualidade ou formato</label>
+              <select id="quality" name="quality">
+                <option value="best">Melhor disponível</option>
+                <option value="1080">Até 1080p</option>
+                <option value="720">Até 720p</option>
+                <option value="480">Até 480p</option>
+                <option value="mp3">Só áudio · MP3</option>
+              </select>
+            </div>
+            <div>
+              <label for="credit">Crédito <span class="optional">opcional</span></label>
+              <input id="credit" name="credit" maxlength="65" placeholder="@criador" autocomplete="off" aria-describedby="credit-help">
+              <small id="credit-help">O crédito manual tem prioridade sobre o detectado pelo site.</small>
+            </div>
+          </div>
+          <div class="submit-row">
+            <button class="primary" type="submit">Adicionar à fila</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="activity" aria-labelledby="activity-title">
+        <div class="section-head">
+          <div><h2 id="activity-title">Fila e histórico</h2><p id="summary" class="muted"></p></div>
+          <button type="button" id="clear" class="quiet" disabled>Limpar histórico</button>
+        </div>
+        <div id="empty" class="empty">A fila está vazia. Adicione um link para começar.</div>
+        <ul id="jobs" class="jobs" aria-label="Downloads"></ul>
+      </section>
+
+      <details class="help">
+        <summary>Onde ficam os arquivos?</summary>
+        <p>O download roda no PC, mesmo se você fechar a página. Quando terminar, toque em <strong>Baixar arquivo</strong> para salvar uma cópia no aparelho que você está usando. O navegador controla a pasta de destino.</p>
+        <p>O PC precisa estar ligado e acessível. No menu do navegador, você pode instalar o app ou adicionar um atalho à tela inicial, conforme o aparelho.</p>
+      </details>
+    </div>
+    <dialog id="clear-dialog" aria-labelledby="clear-title">
+      <h2 id="clear-title">Limpar histórico?</h2>
+      <p>Os arquivos prontos ficam no PC. Registros e parciais de itens cancelados ou com falha serão descartados.</p>
+      <form method="dialog"><button value="cancel" autofocus>Voltar</button><button class="primary" value="clear">Limpar histórico</button></form>
+    </dialog>
+  </main>
+</body>
+</html>

@@ -1,0 +1,23 @@
+[package]
+name = "videolivre-web"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+axum = "0.8"
+fs2 = "0.4"
+percent-encoding = "2"
+rand = "0.9"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+subtle = "2"
+tempfile = "3"
+tokio = { version = "1", features = ["full"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.6", features = ["fs", "set-header"] }
+url = "2"
+uuid = { version = "1", features = ["v4", "serde"] }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_JobObjects", "Win32_System_Threading", "Win32_Security"] }
