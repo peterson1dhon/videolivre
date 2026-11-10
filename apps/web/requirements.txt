@@ -1,0 +1,2 @@
+# Instalar com --no-deps. Os transportes nativos ficam fora do ambiente do downloader.
+yt-dlp==2026.8.19
