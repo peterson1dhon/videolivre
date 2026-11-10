@@ -16,6 +16,7 @@ Gerenciador de downloads de vídeos de diferentes sites, com interface em portug
 - Progresso percentual e diagnóstico de erro por item.
 - Quando o site fornece o perfil do criador, inclui o @ no nome do arquivo para facilitar os créditos.
 - Campo **Créditos / @ do criador**: preencha antes de adicionar à fila. Aceita @ ou nome com espaços e acentos; se faltar @, o programa adiciona. O texto manual tem prioridade sobre a identificação automática. O nome final fica como `Título [@criador].mp4`, sem o ID numérico do site. O campo é limpo após adicionar cada vídeo para evitar atribuir o próximo ao mesmo criador por engano.
+- O campo de créditos tem o botão **Colar créditos** e menu de contexto com Colar, Copiar e Recortar. Links de perfil conhecidos são convertidos para @ quando o endereço contém o identificador.
 - Limpar os itens concluídos sem apagar os arquivos.
 - Abrir a pasta do download selecionado.
 
@@ -75,4 +76,3 @@ O VideoLivre conserva uma cópia da fila anterior em `%LOCALAPPDATA%\VideoLivre\
 | `COMPONENTES.txt` | Componentes e referências de licenciamento |
 
 Este projeto é independente do Internet Download Manager e não utiliza seu código ou sua marca. Os componentes de terceiros mantêm suas próprias licenças. Este repositório não define uma licença de redistribuição para o código da interface.
-

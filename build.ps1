@@ -10,7 +10,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Falha ao instalar dependências.' }
     & $pythonExe preparar_ffmpeg.py
     if ($LASTEXITCODE -ne 0) { throw 'Falha ao preparar FFmpeg.' }
-    & $pythonExe -m PyInstaller --noconfirm --onedir --console --name VideoLivre --collect-all yt_dlp --collect-all yt_dlp_ejs app.py
+    & $pythonExe -m PyInstaller --noconfirm --onedir --windowed --name VideoLivre --collect-all yt_dlp --collect-all yt_dlp_ejs app.py
     if ($LASTEXITCODE -ne 0) { throw 'Falha ao gerar executável.' }
     Copy-Item ffmpeg.exe dist\VideoLivre\ffmpeg.exe -Force
     Copy-Item README.md,COMPONENTES.txt dist\VideoLivre -Force

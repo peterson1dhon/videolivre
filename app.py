@@ -23,7 +23,7 @@ import uuid
 import shutil
 
 STATE = Path(os.environ.get('LOCALAPPDATA', str(Path.home()))) / 'VideoLivre'
-APP_VERSION = '1.1.2'
+APP_VERSION = '1.1.4'
 QUALITIES = ['Melhor disponível', 'Até 1080p', 'Até 720p', 'Até 480p', 'Somente áudio (MP3)']
 STATUS_LABELS = {
     'queued': 'Na fila', 'paused': 'Pausado', 'downloading': 'Baixando',
@@ -76,6 +76,36 @@ def clean_credit(text):
 def format_credit(text):
     name = clean_credit(text).lstrip('@').strip()
     return '@' + name if name else ''
+
+
+def credit_from_clipboard(text):
+    """Convert a pasted creator profile URL to @handle; keep names/@ input intact."""
+    value = text.strip()
+    try:
+        parsed = urlsplit(value)
+    except ValueError:
+        return format_credit(value)
+    if parsed.scheme not in ('http', 'https') or not parsed.hostname:
+        return format_credit(value)
+
+    host = parsed.hostname.lower().removeprefix('www.')
+    segments = [unquote(part) for part in parsed.path.split('/') if part]
+    for segment in segments:
+        if re.fullmatch(r'@[A-Za-z0-9._-]+', segment):
+            return format_credit(segment)
+
+    profile_hosts = {'instagram.com', 'x.com', 'twitter.com', 'facebook.com'}
+    reserved = {
+        'instagram.com': {'accounts', 'explore', 'p', 'reel', 'reels', 'stories', 'direct'},
+        'x.com': {'home', 'explore', 'search', 'i', 'intent', 'settings', 'messages', 'notifications'},
+        'twitter.com': {'home', 'explore', 'search', 'i', 'intent', 'settings', 'messages', 'notifications'},
+        'facebook.com': {'watch', 'reel', 'reels', 'share', 'groups', 'events', 'marketplace', 'login'},
+    }
+    if host in profile_hosts and segments and segments[0].lower() not in reserved[host]:
+        candidate = segments[0]
+        if re.fullmatch(r'[A-Za-z0-9._-]{1,80}', candidate):
+            return format_credit(candidate)
+    return ''
 
 
 def safe_error(text):
@@ -175,7 +205,10 @@ class App(tk.Tk):
         style.configure('Treeview.Heading', padding=8, font=('Segoe UI', 10, 'bold'))
         main = ttk.Frame(self, padding=24)
         main.pack(fill='both', expand=True)
-        ttk.Label(main, text='VideoLivre', font=('Segoe UI', 25, 'bold')).pack(anchor='w')
+        header = ttk.Frame(main)
+        header.pack(fill='x')
+        ttk.Label(header, text='VideoLivre', font=('Segoe UI', 25, 'bold')).pack(side='left')
+        ttk.Label(header, text=f'v{APP_VERSION}', foreground='#536574').pack(side='right', anchor='n')
         ttk.Label(main, text='Cole um link. Escolha a qualidade. Salve no seu computador.').pack(anchor='w', pady=(3, 20))
         ttk.Label(main, text='Link do vídeo').pack(anchor='w')
         line = ttk.Frame(main)
@@ -194,7 +227,16 @@ class App(tk.Tk):
         credits.pack(fill='x', pady=(10, 0))
         ttk.Label(credits, text='Créditos / @ do criador:').pack(side='left')
         self.credit = tk.StringVar()
-        ttk.Entry(credits, textvariable=self.credit).pack(side='left', fill='x', expand=True, padx=(8, 0))
+        self.credit_entry = ttk.Entry(credits, textvariable=self.credit)
+        self.credit_entry.pack(side='left', fill='x', expand=True, padx=(8, 0))
+        ttk.Button(credits, text='Colar créditos', command=self.paste_credit).pack(side='left', padx=(8, 0))
+        self.edit_target = None
+        self.edit_menu = tk.Menu(self, tearoff=False)
+        self.edit_menu.add_command(label='Colar', command=self.paste_selected_text)
+        self.edit_menu.add_command(label='Copiar', command=self.copy_selected_text)
+        self.edit_menu.add_command(label='Recortar', command=self.cut_selected_text)
+        for entry in (self.url, self.credit_entry):
+            entry.bind('<Button-3>', self.show_edit_menu, add='+')
         ttk.Label(main, text='Opcional: digite @usuario ou o nome. Em branco, tenta identificar automaticamente.', wraplength=700).pack(anchor='w', pady=(4, 0))
         destination = ttk.Frame(main)
         destination.pack(fill='x', pady=(12, 20))
@@ -277,6 +319,72 @@ class App(tk.Tk):
             self.url.insert(0, self.clipboard_get().strip())
         except tk.TclError:
             self.notice.set('Copie o link do vídeo antes de colar.')
+
+    def paste_credit(self):
+        try:
+            text = self.clipboard_get().strip()
+        except tk.TclError:
+            self.notice.set('Copie o nome, @ ou link do perfil do criador antes de colar.')
+            return
+        credit = credit_from_clipboard(text)
+        if not credit:
+            self.notice.set('Não encontrei o @ nesse link. Cole o @ ou o nome do criador.')
+            return
+        self.credit.set(credit)
+        self.notice.set('Crédito preenchido a partir da área de transferência.')
+
+    def show_edit_menu(self, event):
+        self.edit_target = event.widget
+        widget = self.edit_target
+        has_selection = bool(widget.selection_present())
+        try:
+            self.clipboard_get()
+            has_clipboard = True
+        except tk.TclError:
+            has_clipboard = False
+        self.edit_menu.entryconfigure('Colar', state='normal' if has_clipboard else 'disabled')
+        for label in ('Copiar', 'Recortar'):
+            self.edit_menu.entryconfigure(label, state='normal' if has_selection else 'disabled')
+        self.edit_menu.tk_popup(event.x_root, event.y_root)
+        self.edit_menu.grab_release()
+        return 'break'
+
+    def copy_selected_text(self):
+        widget = self.edit_target
+        if widget is None or not widget.selection_present():
+            return
+        try:
+            self.clipboard_clear()
+            self.clipboard_append(widget.selection_get())
+        except tk.TclError:
+            self.notice.set('Não foi possível copiar o texto selecionado.')
+
+    def cut_selected_text(self):
+        widget = self.edit_target
+        if widget is None or not widget.selection_present():
+            return
+        self.copy_selected_text()
+        try:
+            widget.delete('sel.first', 'sel.last')
+        except tk.TclError:
+            self.notice.set('Não foi possível recortar o texto selecionado.')
+
+    def paste_selected_text(self):
+        widget = self.edit_target
+        if widget is None:
+            return
+        try:
+            text = self.clipboard_get()
+            if widget is self.credit_entry:
+                text = credit_from_clipboard(text)
+                if not text:
+                    self.notice.set('Não encontrei o @ nesse link. Cole o @ ou o nome do criador.')
+                    return
+            if widget.selection_present():
+                widget.delete('sel.first', 'sel.last')
+            widget.insert('insert', text)
+        except tk.TclError:
+            self.notice.set('Não foi possível colar o texto da área de transferência.')
 
     def choose(self):
         folder = filedialog.askdirectory(initialdir=self.folder.get())
@@ -571,4 +679,3 @@ if __name__ == '__main__':
         import ctypes
         ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
     App().mainloop()
-

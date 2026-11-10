@@ -208,6 +208,10 @@ Faça uma tarefa por vez e registre o resultado antes de começar a próxima. As
 
 Após concluir o download, o programa remove o sufixo de ID usado internamente e acrescenta o crédito como `[@nome]`. Se o usuário digitar o nome sem @, o prefixo é acrescentado. Mesmo sem crédito disponível, o nome final não conserva o ID. Se já existir outro arquivo com o mesmo título, o novo recebe `(2)`, `(3)` etc. Um arquivo já baixado foi renomeado e o registro da fila foi atualizado. O arquivo da fila anterior foi guardado como `queue.before-1.1.2.json`.
 
+### Colagem de créditos sem teclado — versão 1.1.4
+
+Adicionado o botão **Colar créditos** ao lado do campo de criador e menu de clique direito com Colar, Copiar e Recortar nos campos editáveis de link e créditos. Links de perfil do TikTok, YouTube, Instagram, X/Twitter e Facebook são convertidos para @ quando o identificador aparece no endereço. Nome e @ colados continuam usando a regra atual de formatação.
+
 ### Créditos manuais antes do download — versão 1.1.1
 
 Campo opcional **Créditos / @ do criador** antes de adicionar à fila. O texto manual tem prioridade sobre o perfil automático, aceita nomes com espaços e acentos e fica salvo no item para retomadas. O campo é limpo após adicionar um vídeo. Ao concluir, o arquivo recebe `[crédito]`; colisões recebem um número, sem sobrescrever outro vídeo. Verificados com arquivos temporários: prioridade manual, persistência, acentos e preservação de arquivo existente.
@@ -262,5 +266,4 @@ Para cada tarefa concluída, acrescente:
 - **Tarefas 02 a 05 — implementação parcial.** Checagem de pasta e dependências, mensagens de erro por item, encerramento em thread e percentual de progresso básico. Verificações: compilação Python, testes rápidos de migração, sanitização e classificação de erros. Interface e processos de vídeo real ainda precisam de validação manual.
 - **Acentos e créditos do criador:** UTF-8 forçado na saída e @ reconhecido pelos metadados de perfil foi acrescentado ao nome final do arquivo. Teste real em sites ainda pendente.
 - **Commit mais recente do código desta rodada:** `296c4b815d283388ce2bc45e5b3140c7d37a3ebc`. README e plano foram atualizados nos commits seguintes.
-
 
